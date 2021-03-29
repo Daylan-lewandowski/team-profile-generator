@@ -16,4 +16,8 @@ Use this simple tool to efficiently and quickly make a team profile of you and y
     1. Open terminal, once there run the script by typing node index.js
     2. Enter the details for the prompted inputs.
     3. You may also add additional members according to role selection.
-    4. After you're done adding all your team members the HTML for your webpage will be generated and located in the dist folder.
+
+
+## In Action Video
+
+<iframe src="https://drive.google.com/file/d/13ZtdXATJ5bxoZMim6rB8M9BPqOVKmtMH/preview" width="640" height="480"></iframe>
