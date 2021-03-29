@@ -19,5 +19,4 @@ Use this simple tool to efficiently and quickly make a team profile of you and y
 
 
 ## In Action Video
-
-<iframe src="https://drive.google.com/file/d/13ZtdXATJ5bxoZMim6rB8M9BPqOVKmtMH/preview" width="640" height="480"></iframe>
+https://drive.google.com/file/d/13ZtdXATJ5bxoZMim6rB8M9BPqOVKmtMH/preview
