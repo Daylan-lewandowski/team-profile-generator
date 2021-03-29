@@ -1,5 +1,5 @@
 const Employee = require ('../lib/Employee');
-const { expectToBe, expectStr, expectNum } = require('../utils/expect');
+const { expectToBe, expectStr, expectNum } = require('../src/expect-helper');
 
 const employee = new Employee('John', 'Doe', 1);
 

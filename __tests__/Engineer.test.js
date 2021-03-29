@@ -1,12 +1,12 @@
   
 const Engineer = require('../lib/Engineer');
-const { expectToBe, expectStr, expectNum } = require('../utils/expect');
+const { expectToBe, expectStr, expectNum } = require('../src/expect-helper');
 
-const engineer = new Engineer('John', 'Doe', 1, 'jamescodes');
+const engineer = new Engineer('Daylan', 'Smith', 1, 'DaylanCoe');
 
 test('creates an engineer object', () => {
-    expectToBe(engineer.firstName, 'John');
-    expectToBe(engineer.lastName, 'Doe');
+    expectToBe(engineer.firstName, 'Daylan');
+    expectToBe(engineer.lastName, 'Smith');
     expectNum(engineer.id);
     expectStr(engineer.email, '@');
     expectToBe(engineer.role, 'Engineer');

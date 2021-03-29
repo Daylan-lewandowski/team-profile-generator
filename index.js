@@ -1,245 +1,161 @@
-const Manager = require("./lib/Manager");
-const Engineer = require("./lib/Engineer");
-const Intern = require("./lib/Intern");
-const inquirer = require("inquirer");
-const path = require("path");
-const fs = require("fs");
+const inquirer = require('inquirer');
+const fs = require('fs');
+const generatePage = require('./src/profile-template.js')
+const formatName = require('./src/template-helper');
+const allEmployees = [];
 
-const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
-
-const render = require("./dist/render");
-const Employee = require("./lib/Employee");
-
-let team = [];
-let canAddManager = true;
-
-const questions = {
-    Manager: [
-        {
-            type: "input",
-            name: "name",
-            message: "What is the manager's name?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter manager's name." }
-            },
-        },
-        {
-            type: "input",
-            name: "id",
-            message: "What is the manager's id?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter manager's id." }
-            },
-        },
-        {
-            type: "input",
-            name: "email",
-            message: "What is the manager's email address?",
-            
-        },
-        {
-            type: "input",
-            name: "officeNumber",
-            message: "What is the manager's office number?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter manager's office number." }
-            },
-        },
-        {
-            type: "list",
-            name: "addNew",
-            message: "Do you want to add another employee",
-            choices: ["yes", "no"]
-        }
-    ],
-
-    Engineer: [
-        {
-            type: "input",
-            name: "name",
-            message: "What is the engineer's name?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter engineer's name." }
-            },
-        },
-        {
-            type: "input",
-            name: "id",
-            message: "What is the engineer's id?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter engineer's id." }
-            },
-        },
-        {
-            type: "input",
-            name: "email",
-            message: "What is the engineer's email address?",
-        
-        },
-        {
-            type: "input",
-            name: "github",
-            message: "What is the engineer's GitHub username?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter engineer's GitHub." }
-            },
-        },
-        {
-            type: "list",
-            name: "addNew",
-            message: "Do you want to add another employee",
-            choices: ["yes", "no"]
-        }
-    ],
-
-    Intern: [
-        {
-            type: "input",
-            name: "name",
-            message: "What is the intern's name?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter intern's name." }
-            },
-        },
-        {
-            type: "input",
-            name: "id",
-            message: "What is the intern's id?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter intern's id." }
-            },
-        },
-        {
-            type: "input",
-            name: "email",
-            message: "What is the intern's email address?",
-            
-        },
-        {
-            type: "input",
-            name: "school",
-            message: "What school is the intern attending?",
-            validate: (value) => {
-                if (value) {
-                    return true
-                } else { return "Please enter the name of school." }
-            },
-        },
-        {
-            type: "list",
-            name: "addNew",
-            message: "Do you want to add another employee",
-            choices: ["yes", "no"]
-        }
-    ]
-};
-
-const selectMemberType = [
+const questions = [
     {
-        type: "list",
-        name: "memberType",
-        message: "Please choose the role for the employee",
-        choices: ["Manager", "Engineer", "Intern"],
+        type: 'list',
+        name: 'role',
+        message: 'What is the employee\'s role?',
+        choices: // function to allow only one manager to be created
+            () => {
+            if (allEmployees.some(employee => employee.role === 'Manager')) {
+                return ['Engineer', 'Intern']    
+            } else {
+                return ['Manager', 'Engineer', 'Intern']
+            }
+        }
+    },
+    {
+        type: 'input',
+        name: 'firstName',
+        message: ({ role }) => `What is the ${role.toLowerCase()}'s first name?`,
+        validate: nameInput => {
+            if (nameInput) {
+                return true;
+            } else {
+                console.log('Please enter the first name!');
+                return false;
+            }
+        }
+    },
+    {
+        type: 'input',
+        name: 'lastName',
+        message: ({ firstName }) => `What is ${formatName(firstName)}'s last name?`,
+        validate: nameInput => {
+            if (nameInput) {
+                return true;
+            } else {
+                console.log('Please enter the last name!');
+                return false;
+            }
+        }
+    },
+    {
+        type: 'input',
+        name: 'id',
+        message: ({ firstName }) => `What is ${formatName(firstName)}'s ID number?`,
+        validate: idInput => {
+            if (!isNaN(parseInt(idInput))) {
+                return true;
+            } else {
+                console.log('Please enter a valid ID number!');
+                return false;
+            }
+        }
+    },
+    {
+        type: 'input',
+        name: 'officeNumber',
+        message:  ({ firstName }) => `What is ${formatName(firstName)}'s office number?`,
+        when: ({ role }) => {
+            if (role === 'Manager') {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        validate: officeNumberInput => {
+            if (!isNaN(parseInt(officeNumberInput))) {
+                return true;
+            } else {
+                console.log('Please enter a valid number!');
+                return false;
+            }
+        }
+    },
+    {
+        type: 'input',
+        name: 'github',
+        message: ({ firstName }) => `What is ${formatName(firstName)}'s GitHub userame?`,
+        when: ({ role }) => {
+            if (role === 'Engineer') {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        validate: githubInput => {
+            if (githubInput) {
+                return true;
+            } else {
+                console.log('Please enter a username!');
+                return false;
+            }
+        }
+    },
+    {
+        type: 'input',
+        name: 'school',
+        message: ({ firstName }) => `What school does ${formatName(firstName)} go to?`,
+        when: ({ role }) => {
+            if (role === 'Intern') {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        validate: schoolInput => {
+            if (schoolInput) {
+                return true;
+            } else {
+                console.log('Please enter a school name!');
+                return false;
+            }
+        }
+    },
+    {
+        type: 'confirm',
+        name: 'addEmployee',
+        message: 'Would you like to add another employee?',
+        default: true
     }
-];
+]
 
-function addNewMember() {
-    inquirer.prompt(selectMemberType)
-        .then(answer => {
-            
+const promptUser = () => {
 
-            if (answer.memberType === "Manager") {
-                if (canAddManager) {
-                    inquirer.prompt(questions.Manager)
-                        .then(answer => {
-                            
-                            const manager = new Manager
-                                (
-                                    answer.name,
-                                    answer.id,
-                                    answer.email,
-                                    answer.officeNumber
-                                );
+    return inquirer.prompt(questions)
+    .then(userResponse => {
 
-                            
-                            team.push(manager);
-                            canAddManager = false;
-                            if (answer.addNew === "yes") {
-                                addNewMember();
-                            } else {
-                                generate();
-                            }
-                        });
-                } else {
-                    
-                    console.log("There is a manager already!")
-                    addNewMember();
-                }
+        // adds to employee data array
+        allEmployees.push(userResponse);
 
-
-            } else if (answer.memberType === "Engineer") {
-                inquirer.prompt(questions.Engineer)
-                    .then(answer => {
-                        
-                        const engineer = new Engineer
-                            (
-                                answer.name,
-                                answer.id,
-                                answer.email,
-                                answer.github
-                            );
-                        
-                        team.push(engineer);
-                        if (answer.addNew === "yes") {
-                            addNewMember();
-                        } else {
-                            generate();
-                        };
-                    });
-
-            } else if (answer.memberType === "Intern") {
-                inquirer.prompt(questions.Intern)
-                    .then(answer => {
-                        
-                        const intern = new Intern
-                            (
-                                answer.name,
-                                answer.id,
-                                answer.email,
-                                answer.school
-                            );
-                        
-                        team.push(intern);
-                        if (answer.addNew === "yes") {
-                            addNewMember();
-                        } else {
-                            generate();
-                        };
-                    });
-            };
-        });
+        // adds another employee based on user selection
+        if (userResponse.addEmployee) {
+            return promptUser();
+        } else {
+            return allEmployees;
+        };
+    });
 };
 
-addNewMember();
+const writePage = (htmlContent) => {
+    fs.writeFile('./dist/index.html', htmlContent, err => {
+        if (err) {
+            throw err
+        };
+        console.log('Page created successfully!');
+    });
+};
 
-function generate() {
-    fs.writeFileSync(outputPath, render(team), "utf-8");
-    process.exit(0);
-}
+console.log(`
+Welcome to the Team Profile Generator!  Let's add some employees!
+`);
+
+promptUser()
+    .then(data => generatePage(data))
+    .then(generatedHtml => writePage(generatedHtml))
+    .catch(err => console.log(err));

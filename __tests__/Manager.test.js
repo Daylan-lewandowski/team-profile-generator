@@ -1,5 +1,5 @@
 const Manager = require ('../lib/Manager');
-const { expectToBe, expectStr, expectNum } = require('../utils/expect');
+const { expectToBe, expectStr, expectNum } = require('../src/expect-helper');
 
 const manager = new Manager('John', 'Doe', 1, 1);
 
